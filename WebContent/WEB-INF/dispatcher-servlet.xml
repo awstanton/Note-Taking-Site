@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:sec="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security.xsd">
+	
+	<context:component-scan base-package="com.springexperiment"></context:component-scan>
+	<mvc:resources mapping="/resources/**" location="/resources/"/>
+	<mvc:annotation-driven/>
+	
+
+	
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/WEB-INF/views/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver" />
+	
+	<bean class="com.springexperiment.controller.ExperimentController">
+		<property name="experimentDao" ref="experimentDao"></property>
+<!-- 		<property name="sessionRegistry" ref="sessionRegistry"></property> -->
+	</bean>
+	
+	<bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
+		<constructor-arg name="strength" value="12" />
+	</bean>
+	
+	<bean id="experimentDao" class="com.springexperiment.dao.ExperimentDao">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="passwordEncoder" ref="passwordEncoder"/>
+	</bean>
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driverClassName}"/>
+		<property name="url" value="${jdbc.url}"/>
+		<property name="username" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+		<property name="initialSize" value="${jdbc.initialSize}"/>
+		<property name="maxTotal" value="${jdbc.maxTotal}"/>
+	</bean>
+	
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	
+<!-- 	<bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint"> -->
+<!-- 		<constructor-arg name="loginFormUrl" value="/login"/> -->
+<!-- 	</bean> -->
+
+	<sec:debug />
+
+	<sec:http pattern="/resources/**/*.ico" security="none" />
+	<sec:http use-expressions="true">
+		<sec:intercept-url pattern="/login" access="permitAll" requires-channel="https" />
+		<sec:intercept-url pattern="/signup" access="permitAll" requires-channel="https" />
+		<sec:intercept-url pattern="/logout" access="hasRole('ROLE_USER')" requires-channel="https" />
+		<sec:intercept-url pattern="/resources/**/*.js" access="permitAll" requires-channel="https" />
+		<sec:intercept-url pattern="/resources/**/*.css" access="permitAll" requires-channel="https" />
+		<sec:intercept-url pattern="/admin" access="hasRole('ROLE_ADMIN')" requires-channel="https" />
+		<sec:intercept-url pattern="/items" access="hasRole('ROLE_USER')" requires-channel="https" />
+		<sec:intercept-url pattern="/update" access="hasRole('ROLE_USER')" requires-channel="https" />
+		<sec:intercept-url pattern="/updateItem" access="hasRole('ROLE_USER')" requires-channel="https" />
+		<sec:intercept-url pattern="/newItem" access="hasRole('ROLE_USER')" requires-channel="https" />
+		<sec:intercept-url pattern="/logoutSave" access="hasRole('ROLE_USER')" requires-channel="https" />
+		<sec:intercept-url pattern="/**" access="denyAll" requires-channel="https" />
+		
+		<sec:access-denied-handler error-page="/denied" /> <!-- perhaps configure AuthenticationSuccessHandler and AuthenticationFailureHandler or AuthenticationEntryPoint -->
+		<sec:form-login login-page="/login"
+			default-target-url="/items"
+			always-use-default-target="true"
+			authentication-failure-url="/login?error"
+			username-parameter="username"
+			password-parameter="password" /> <!-- NOT SURE IF DELETE-COOKIES IS NEEDED HERE -->
+		<sec:logout logout-url="/logout" logout-success-url="/login?logout" delete-cookies="JSESSIONID"/> <!-- perhaps configure a LogoutSuccessHandler and/or LogoutHandler -->
+		<sec:http-basic/>
+<!-- 		<sec:csrf /> -->
+		<sec:session-management>
+			<sec:concurrency-control max-sessions="1" error-if-maximum-exceeded="true" expired-url="/login?error" />
+		</sec:session-management>
+	</sec:http>
+	
+	<!-- daoAuthenticationProvider -->
+	
+	<sec:authentication-manager>
+		<sec:authentication-provider>
+			<sec:password-encoder ref="passwordEncoder"/>
+			<sec:jdbc-user-service data-source-ref="dataSource"
+									users-by-username-query="SELECT username, password, enabled FROM Users3 WHERE username = ?"
+									authorities-by-username-query="SELECT username, authority FROM Authorities3 WHERE username = ?" />
+<!-- 									users-by-username-query="SELECT username, password, enabled FROM Users2 WHERE username = ?" -->
+<!-- 									authorities-by-username-query="SELECT username, authority FROM Authorities2 WHERE username = ?" /> -->
+		</sec:authentication-provider>
+	</sec:authentication-manager>
+
+
+
+</beans>
+<!-- 	<bean id="sessionRegistry" -->
+	<!-- 
+	specifying either annotation-driven AND default-servlet-handler OR annotation-driven AND resources works, even when controller without @Controller
+	but taking out annotation-driven makes if fail
+	it also works with resources AND annotation-driven AND default-servlet-handler
+	not sure why this is how it is
+	 -->
+<!-- 			<sec:user-service> -->
+<!-- 			    <sec:user name="user1" -->
+<!-- 			        password="{noop}password1" -->
+<!-- 			        authorities="ROLE_USER" /> -->
+<!-- 			    <sec:user name="user2" -->
+<!-- 			        password="{noop}password2" -->
+<!-- 			        authorities="ROLE_USER,ROLE_ADMIN" /> -->
+<!-- 			</sec:user-service> -->

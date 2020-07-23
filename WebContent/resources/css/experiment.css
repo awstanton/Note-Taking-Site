@@ -1,0 +1,226 @@
+@charset "UTF-8";
+
+/* ideally, these displays should be handled by the type of elements 
+	WHAT DETERMINES WHETHER AN ELEMENT IS INLINE OR INLINE-BLOCK BY DEFAULT
+	textarea: inline
+	input: inline-block
+	select: inline-block
+	button: inline-block
+	form: block
+	anchor: inline
+	nav: block
+*/
+
+
+/* Body */
+#body {
+	overflow: auto;
+	min-width: 28em;
+	text-align: center;
+}
+/* ********** */
+
+
+/* Left Sidebar */
+#leftSidebar {
+	float: left;
+	box-sizing: border-box;
+	width: 10%;
+}
+
+#pageLabel {
+	font-size: 1.25em;
+}
+
+#seeListsLink {
+	display: block;
+	font-size: 1em;
+	margin: .25em 0em .25em 0em;
+}
+
+#logoutLink {
+	font-size: 1em;
+}
+/* ********** */
+
+
+/* Main Items Section */
+#main {
+	float: left;
+	box-sizing: border-box;
+	width: 75%;
+	text-align: center;
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+#inputItemNameElement {
+		border: 2px inset #EBE9ED;
+}
+
+#inputItemNameElement:empty::before {
+		content: "Name: ";
+		font-style: italic;
+		font-size: 13.3333px;
+		color: gray;
+		font-family: tahoma;
+}
+
+/* #main > div:first-of-type + .itemName { */
+/* 	display: none; */
+/* } */
+
+/* #main > div:first-of-type + .itemName + .itemCard { */
+/* 	display: none; */
+/* } */
+
+/* .inputItem { */
+/* 	border: 2px inset #EBE9ED; */
+/* } */
+
+.itemName, #inputItemName {
+	text-align: center;
+	font-size: 1.5em;
+}
+
+.itemName:hover, #inputItemName:hover {
+	border: solid gray 1px;
+/* 	color: lightblue; */
+/* 	background-color: lavender; */
+}
+
+.itemCard {
+	border: solid black 2px;
+	display: inline-block;
+	width: 100%;
+	max-width: 100%;
+	position: relative;
+	box-sizing: border-box;
+}
+
+/* .itemCardX { */
+/* 	position: absolute; */
+/* 	top: 0px; */
+/* 	right: 1px; */
+/* } */
+
+.itemCardLeft {
+	float: left;
+	width: 20%;
+	overflow-wrap: break-word;
+	min-width: 2em;
+	text-align: center;
+}
+
+.inputList {
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+.dates {
+	width: 100%;
+	max-width: 100%;
+	text-align: left;
+}
+
+.itemCardCenter {
+	float: left;
+	width: 60%;
+	min-width: 3em;
+	overflow-wrap: break-word;
+	text-align: center;
+}
+
+.description {
+	resize: none;
+	cursor: default;
+	overflow: hidden;
+	width: 80%;
+	max-width: 80%;
+	height: 100%;
+	max-height: 100%;
+	box-sizing: border-box;
+}
+
+.itemCardRight {
+	float: left;
+	width: 20%;
+	overflow-wrap: break-word;
+	min-width: 2em;
+	text-align: center;
+}
+
+.tag {
+	width: 100%;
+	max-width: 100%;
+}
+
+.inputTag {
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+/* ********** */
+
+
+/* Right Sidebar */
+#rightSidebar {
+	float: left;
+	box-sizing: border-box;
+	width: 15%;
+	overflow-wrap: break-word;
+	max-width: 15%;
+	text-align: center;
+}
+
+#orderBy {
+	margin: .25em 0em .25em 0em;
+}
+/* ********** */
+
+
+/* General */
+.fullMaxWidth {
+	max-width: 100%;
+}
+
+.clearBoth {
+	clear: both;
+}
+
+.displayNone {
+	display: none;
+}
+
+.italic {
+	font-style: italic;
+}
+
+.nonItalic {
+	font-style: normal;
+}
+
+#itemsMinus::before, .itemMinus::before, .tagsMinus::before, .tagMinus::before{
+	content: "    ";
+	white-space: pre;
+}
+
+.block {
+	display: block;
+}
+
+::-webkit-input-placeholder {
+   font-style: italic;
+}
+:-moz-placeholder {
+   font-style: italic;  
+}
+::-moz-placeholder {
+   font-style: italic;  
+}
+:-ms-input-placeholder {  
+   font-style: italic; 
+}
+/* ********** */
+
