@@ -17,8 +17,8 @@
 				</label>
 				<br/>
 				<div class="dates">
-					<label class="italic block">Created: <span class="nonItalic"></span></label>
-					<label class="italic block">Modified: <span class="nonItalic"></span></label>
+					<label class="created italic block">Created: <span class="nonItalic"></span></label>
+					<label class="modified italic block">Modified: <span class="nonItalic"></span></label>
 				</div>
 			</div>
 			<div class="itemCardCenter">

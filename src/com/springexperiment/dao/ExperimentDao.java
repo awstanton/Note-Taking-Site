@@ -106,7 +106,7 @@ public class ExperimentDao {
 		System.out.println("item = " + item);
 		int userid = jdbcTemplate.queryForObject("SELECT id FROM Users3 WHERE username = ?", new String[] {username}, Integer.class);
 		
-		jdbcTemplate.update("INSERT INTO Items3 VALUES(NULL,?,?,?,?,?)", userid, item.getNewName(), item.getDescription(),"2021-06-01 13:56:32","2020-06-28 03:36:03");
+		jdbcTemplate.update("INSERT INTO Items3 VALUES(NULL,?,?,?,?,?)", userid, item.getNewName(), item.getDescription(), item.getModified(),item.getModified());
 		
 		int itemid = jdbcTemplate.queryForObject("SELECT id FROM Items3 WHERE name = ? AND userid = ?", new Object[] {item.getNewName(), userid}, Integer.class);
 		
@@ -116,7 +116,7 @@ public class ExperimentDao {
 				listid = jdbcTemplate.queryForObject("SELECT id FROM Lists3 WHERE name = ? AND userid = ?", new Object[] {item.getNewList(), userid}, Integer.class);
 			}
 			catch(EmptyResultDataAccessException e) {
-				jdbcTemplate.update("INSERT INTO Lists3 VALUES(NULL,?,?,?,?,?)", userid, item.getNewList(), "", "2021-06-01 13:56:32", "2020-06-28 03:36:03");
+				jdbcTemplate.update("INSERT INTO Lists3 VALUES(NULL,?,?,?,?,?)", userid, item.getNewList(), "", item.getModified(), item.getModified());
 				listid = jdbcTemplate.queryForObject("SELECT id FROM Lists3 WHERE name = ? AND userid = ?", new Object[] {item.getNewList(), userid}, Integer.class);
 			}
 			finally {

@@ -224,6 +224,13 @@ public class ExperimentController {
 		System.out.println("listNames: " + listNames);
 		System.out.println("tagNames: " + tagNames);
 		
+		for (Item item : items) {
+			item.setCreated(item.getCreated().substring(0,10));
+			item.setModified(item.getModified().substring(0,10));
+			System.out.println(item.getCreated());
+			System.out.println(item.getModified());
+		}
+		
 //		items.add(item);
 		model.addAttribute("items", items);
 		model.addAttribute("listNames", listNames);

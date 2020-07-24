@@ -257,22 +257,23 @@ ways of associating data with html elements:
 	(function() {
 		function restrictInputLength(event) {
 //			console.log("restrictInputLength called ---------");
-			if (event.target.innerText.length > 60) {
-				event.target.innerText = event.target.innerText.substr(0, 60);
-				
+//			console.log(event.target.innerText);
+			if (event.target.innerText.length >= 60) {
+//				console.log("cutting down string");
+				event.target.innerText = event.target.innerText.substr(0, 59);
+//				console.log(event.target.innerText);
 		        var range = document.createRange();
 		        var sel = window.getSelection();
-		        range.setStart(event.target.childNodes[0], 60);
+		        range.setStartAfter(event.target.childNodes[0]);
 		        range.collapse(true);
 		        sel.removeAllRanges();
 		        sel.addRange(range);
-//		        event.target.focus();
 			}
 		}
 		
 		var itemNames = document.querySelectorAll(".itemNameElement");
 		for (var i = 0; i < itemNames.length; ++i) {
-			itemNames[i].addEventListener("keyup", restrictInputLength);
+			itemNames[i].addEventListener("keypress", restrictInputLength);
 			itemNames[i].addEventListener("paste", restrictInputLength);
 		}
 	})();
@@ -284,11 +285,17 @@ ways of associating data with html elements:
 		function sortItems(event) {
 			
 			function compare(a, b) {
-				if (a[0] < b[0]) {
+				var a0 = a[0];
+				var b0 = b[0];
+				if (typeof a0 === "string" && typeof b0 === "string") {
+					a0 = a0.toLowerCase();
+					b0 = b0.toLowerCase();
+				}
+				if (a0 < b0) {
 //					console.log(a[0] + " < " + b[0]);
 					return -1;
 				}
-				else if (a[0] > b[0]) {
+				else if (a0 > b0) {
 //					console.log(a[0] + " > " + b[0]);
 					return 1;
 				}
@@ -298,23 +305,36 @@ ways of associating data with html elements:
 				}
 			}
 			
-			if (event.target.value === "itemName") {
-				var names = main.getElementsByClassName("itemName");
-				var nameArray = [];
-				for (var i = 0; i < names.length; ++i) {
-					nameArray[i] = [names[i].firstElementChild.innerText, names[i], names[i].nextElementSibling]; // [name, nameRef, cardRef]
+			var names = main.getElementsByClassName("itemName");
+			
+			function getValue(itemName, sortMethod) {
+				switch(sortMethod) {
+				case "itemName":
+					return itemName.firstElementChild.innerText;
+				case "created":
+					return itemName.nextElementSibling.querySelector(".created").firstElementChild.innerText; 
+				case "modified":
+					return itemName.nextElementSibling.querySelector(".modified").firstElementChild.innerText;
+				case "listName":
+					return itemName.nextElementSibling.querySelector(".listName").innerText;
+				default:
+					return "";
 				}
-				nameArray.sort(compare);
-				
-				var currentElement = document.getElementById("inputItemCard");
-				
-				for (var i = 0; i < nameArray.length; ++i) {
-					var newName = nameArray[i][1];
-					var newCard = nameArray[i][2];
-					currentElement.insertAdjacentElement("afterend", newName); // insert item name
-					newName.insertAdjacentElement("afterend", newCard); // insert item card
-					currentElement = newCard; // set currentElement to newly insert card
-				}
+			}
+			var nameArray = [];
+			for (var i = 0; i < names.length; ++i) {
+				nameArray[i] = [getValue(names[i], event.target.value), names[i], names[i].nextElementSibling]; // [name, nameRef, cardRef]
+			}
+			nameArray.sort(compare);
+			
+			var currentElement = document.getElementById("inputItemCard");
+			
+			for (var i = 0; i < nameArray.length; ++i) {
+				var newName = nameArray[i][1];
+				var newCard = nameArray[i][2];
+				currentElement.insertAdjacentElement("afterend", newName); // insert item name
+				newName.insertAdjacentElement("afterend", newCard); // insert item card
+				currentElement = newCard; // set currentElement to newly insert card
 			}
 		}
 		document.getElementById("orderSelect").addEventListener("focusout", sortItems);
@@ -527,13 +547,14 @@ ways of associating data with html elements:
 	(function() {
 		function newItem(event) {
 			if (event.target.innerText !== "") {
-				if (event.target.innerText.length > 60) {
-					event.target.innerText = event.target.innerText.substr(0, 60);
-				}
-				else if (itemNameSet.has(event.target.innerText)) {
+				if (itemNameSet.has(event.target.innerText)) {
 					event.target.innerText = "";
 				}
 				else {
+					if (event.target.innerText.length > 60) {
+						event.target.innerText = event.target.innerText.substr(0, 60);
+					}
+					
 					var inputItemName = event.target.parentElement;
 					// clone the input item name
 					var createdItemName = inputItemName.cloneNode(true);

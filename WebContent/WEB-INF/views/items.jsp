@@ -15,7 +15,7 @@
 		<div id="body">
 			<div id="leftSidebar">
 				<span id="pageLabel">ITEMS</span>
-				<a id="seeListsLink" class="block">See Lists</a>
+				<a id="seeSettings" class="block">Settings</a>
 				<form method="post" action="<c:url value="/logout" />">
 					<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 <!-- 					<a id="logoutLink" onclick="this.parentNode.submit();">Logout</a> -->
@@ -44,8 +44,8 @@
 							</label>
 							<br/>
 							<div class="dates">
-								<label class="italic block">Created: <span class="nonItalic">${item.created}</span></label>
-								<label class="italic block">Modified: <span class="nonItalic">${item.modified}</span></label>
+								<label class="created italic block">Created: <span class="nonItalic">${item.created}</span></label>
+								<label class="modified italic block">Modified: <span class="nonItalic">${item.modified}</span></label>
 							</div>
 						</div>
 						<div class="itemCardCenter">
