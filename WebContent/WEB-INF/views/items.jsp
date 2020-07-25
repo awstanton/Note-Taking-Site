@@ -49,7 +49,7 @@
 							</div>
 						</div>
 						<div class="itemCardCenter">
-							<textarea class="description" maxlength="500" placeholder="Description:" rows="10" cols="50" spellcheck="false">${item.description}</textarea>
+							<textarea class="description" maxlength="500" placeholder="Description:" rows="5" cols="50" spellcheck="false">${item.description}</textarea>
 						</div>
 						<div class="itemCardRight">
 							<div class="tagsPlusAndMinus"><span class="tagsPlus">+</span><span class="tagsMinus">-</span></div>

@@ -11,7 +11,16 @@
 	nav: block
 */
 
+* {
+	font-family: "Trebuchet MS";
+	font-size: 1em;
+/* 	font-size: */
+/* 	font-weight: */
+}
 
+body {
+	background-color: beige;
+}
 /* Body */
 #body {
 	overflow: auto;
@@ -26,13 +35,15 @@
 	float: left;
 	box-sizing: border-box;
 	width: 10%;
+	border: solid black 2px;
+/* 	background-color: lemonchiffon; */
 }
 
 #pageLabel {
 	font-size: 1.25em;
 }
 
-#seeListsLink {
+#seeSettings {
 	display: block;
 	font-size: 1em;
 	margin: .25em 0em .25em 0em;
@@ -121,7 +132,7 @@
 .dates {
 	width: 100%;
 	max-width: 100%;
-	text-align: left;
+/* 	text-align: left; */
 }
 
 .itemCardCenter {
@@ -135,12 +146,14 @@
 .description {
 	resize: none;
 	cursor: default;
-	overflow: hidden;
-	width: 80%;
-	max-width: 80%;
-	height: 100%;
+/* 	overflow: hidden; */
+	width: 90%;
+	max-width: 90%;
+/* 	height: 100%; */
 	max-height: 100%;
 	box-sizing: border-box;
+	font-size: 1.25em;
+	height: auto;
 }
 
 .itemCardRight {
@@ -172,6 +185,8 @@
 	overflow-wrap: break-word;
 	max-width: 15%;
 	text-align: center;
+/* 	background-color: lemonchiffon; */
+	border: solid black 2px;
 }
 
 #orderBy {

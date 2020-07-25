@@ -277,6 +277,24 @@ ways of associating data with html elements:
 			itemNames[i].addEventListener("paste", restrictInputLength);
 		}
 	})();
+	
+	var descriptionHeight = (function () {
+		function descriptionHeight(event) {
+			console.log(event.key);
+			if (event.target.scrollHeight > event.target.clientHeight) {
+				event.target.rows = event.target.rows + 1;
+			}
+			else if (event.key === "Backspace" && event.target.rows > 5) {
+				event.target.rows = event.target.rows - 1;
+			}
+		}
+		var descriptions = document.querySelectorAll(".description");
+		for (var i = 0; i < descriptions.length; ++i) {
+			descriptions[i].addEventListener("keyup", descriptionHeight);
+		}
+		
+		return descriptionHeight;
+	})();
 
 	
 	
@@ -594,6 +612,7 @@ ways of associating data with html elements:
 					createdItemCard.querySelector(".listInput").addEventListener("click", clickAndBlurItemList[1]);
 					createdItemCard.querySelector(".listInput").addEventListener("focusout", clickAndBlurItemList[2]);
 					createdItemCard.querySelector(".description").addEventListener("focusout", blurDescription);
+					createdItemCard.querySelector(".description").addEventListener("keyup", descriptionHeight);
 					
 					// remove any duplicate tags
 					var createdTags = createdItemCard.querySelectorAll(".tag");
