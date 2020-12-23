@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE XML>
+<Configuration status="DEBUG">
+	<Properties>
+		<Property name="logFilePath">C:\apache-tomcat-9.0.26\logs</Property>
+	</Properties>
+	<Appenders>
+		<Console name="ConsoleAppender" target="SYSTEM_OUT">
+			<PatternLayout pattern="%-5level %logger{36} -- %msg%n%throwable"/>
+		</Console>
+		<RollingFile name="RollingFileAppender" fileName="${logFilePath}\listsApp.log" filePattern="${logFilePath}\listsApp-%i.log">
+			<PatternLayout pattern="%-5level %logger{36} -- %msg%n%throwable"/>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="50 MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="10" />
+		</RollingFile>
+<!-- 		<File name="MyFile" fileName="C:\apache-tomcat-9.0.26\logs\app.log"> -->
+<!-- 	    	<PatternLayout> -->
+<!-- 	    		<Pattern>%d %p %c{1.} [%t] %m%n</Pattern> -->
+<!-- 	    	</PatternLayout> -->
+<!-- 	    </File> -->
+	</Appenders>
+	<Loggers>
+		<Root level="debug">
+			<AppenderRef ref="RollingFileAppender" />
+		</Root>
+		<Logger name="com.springexperiment.controller.ExperimentController" level="debug" additivity="false">
+			<AppenderRef ref="ConsoleAppender" />
+		</Logger>
+		<Logger name="com.springexperiment.dao.ExperimentDao" level="debug" additivity="false">
+			<AppenderRef ref="ConsoleAppender" />
+		</Logger>
+		<Logger name="com.springexperiment.validator.UpdateItemListValidator" level="debug" additivity="false">
+			<AppenderRef ref="ConsoleAppender" />
+		</Logger>
+	</Loggers>
+</Configuration>
