@@ -13,7 +13,7 @@
 			<div class="itemCardLeft">
 				<label class="block italic inputList">List:
 					<input id="inputListInput" class="listInput" list="listOptions" maxlength="60"/>
-					<span id="inputListName" class="listName displayNone nonItalic">${item.list}</span>
+					<span id="inputListName" class="listName displayNone nonItalic"><c:out value="${item.list}"/></span>
 				</label>
 				<br/>
 				<div class="dates">

@@ -38,6 +38,9 @@
 					<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 				</form>
 			</div>
+			<c:if test="${not empty errMsg}">
+				<span style="display: block;"><c:out value="${errMsg}"/></span>
+			</c:if>
 		</div>
 	</body>
 

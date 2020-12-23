@@ -13,71 +13,70 @@ public class UpdateItem {
 	private List<String> removedTags;
 	private List<String> addedTags;
 	private String modified;
-	
+	// Constructors
 	public UpdateItem() {
 		super();
 //		oldName = "";
 //		newName = "";
 //		type = "";
 	}
-	
+	// Getters
 	public String getModified() {
-	return modified;
-}
-public void setModified(String modified) {
-	this.modified = modified;
-}
-	
+		return modified;
+	}
 	public String getOldName() {
 		return oldName;
 	}
-	public void setOldName(String oldName) {
-		this.oldName = oldName;
-	}
-
 	public String getNewName() {
 		return newName;
 	}
-	public void setNewName(String newName) {
-		this.newName = newName;
-	}
-	
 	public String getType() {
 		return type;
-	}
-	public void setType(String type) {
-		this.type = type;
 	}
 	public String getDescription() {
 		return description;
 	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
 	public String getOldList() {
 		return oldList;
-	}
-	public void setOldList(String oldList) {
-		this.oldList = oldList;
 	}
 	public String getNewList() {
 		return newList;
 	}
-	public void setNewList(String newList) {
-		this.newList = newList;
-	}
 	public List<String> getRemovedTags() {
 		return removedTags;
-	}
-	public void setRemovedTags(List<String> removedTags) {
-		this.removedTags = removedTags;
 	}
 	public List<String> getAddedTags() {
 		return addedTags;
 	}
+	// Setters
+	public void setModified(String modified) {
+		this.modified = modified;
+	}
+	public void setOldName(String oldName) {
+		this.oldName = oldName;
+	}
+	public void setNewName(String newName) {
+		this.newName = newName;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public void setOldList(String oldList) {
+		this.oldList = oldList;
+	}
+	public void setNewList(String newList) {
+		this.newList = newList;
+	}
+	public void setRemovedTags(List<String> removedTags) {
+		this.removedTags = removedTags;
+	}
 	public void setAddedTags(List<String> addedTags) {
 		this.addedTags = addedTags;
 	}
+	// Methods
 	@Override
 	public String toString() {
 		String result = "";

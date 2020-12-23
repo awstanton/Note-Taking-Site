@@ -4,294 +4,261 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.springframework.dao.DataAccessException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+//import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.springexperiment.controller.ExperimentController;
 import com.springexperiment.model.Item;
 import com.springexperiment.model.UpdateItem;
 
 public class ExperimentDao {
+	private static final Logger logger = LogManager.getLogger(ExperimentController.class);
 	private PasswordEncoder passwordEncoder;
+	private JdbcTemplate jdbcTemplate;
 	
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		this.passwordEncoder = passwordEncoder;
 	}
-	
-	private enum TableNames {
-		
-	}
-	
-	private enum Query {
-		getName("SELECT name FROM table1 WHERE id = ? AND quantity = ?"),
-		getUser("SELECT COUNT(*) FROM Users2 WHERE username = ?");
-//		getUserInfo("SELECT id, username, password FROM Users WHERE username = ?"),
-//		getUserItems("SELECT name, description, created, modified FROM Items WHERE userid = ?"),
-//		getUserTags("SELECT T.name FROM Tags T, ItemTags IT, Items I WHERE I.id = IT.itemid AND IT.tagid = T.id AND I.userid = ?"),
-//		getUserItemTags("SELECT T.name FROM Tags T, ItemTags IT, Items I WHERE I.id = ? AND I.id = IT.itemid AND I.userid = ? AND T.id = IT.tagid"),
-//		getUserLists("SELECT name, description, created, modified FROM Lists L WHERE L.userid = ?"),
-//		getUserListItems("SELECT I.name FROM Items I, ListItems LI WHERE LI.listId = ? AND I.userid = ? AND I.id = LI.itemid");
-		
-		private final String query;
-		
-		Query(String query) {
-			this.query = query;
-		}
-		
-		String getQuery() {
-			return query;
-		}
-	}
-	
-	private JdbcTemplate jdbcTemplate;
-	
 	public void setDataSource(DataSource dataSource) {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
 	
-	public void signUp(String username, String password) {
-		String encodedPassword = passwordEncoder.encode(password);
-//		System.out.println("ZZZ: " + password);
-//		System.out.println("ZZZ: " + encodedPassword);
-		jdbcTemplate.update("INSERT INTO Users3 VALUES(NULL,?,?,?)", username, encodedPassword, true);
-		jdbcTemplate.update("INSERT INTO Authorities3 VALUES(?,'ROLE_USER')", username);
-		// insert into Authorities1 also!!!
+	private enum Queries {
+		insertUsers("INSERT INTO users VALUES(NULL,?,?,?)"),
+		insertAuthorities("INSERT INTO authorities VALUES(?,?)"),
+		insertItems("INSERT INTO items VALUES(NULL,?,?,?,?,?)"),
+		insertTags("INSERT INTO tags VALUES(NULL,?,?)"),
+		insertItemTags("INSERT INTO itemtags VALUES(?,?)"),
+		insertLists("INSERT INTO lists VALUES(NULL,?,?,?,?,?)"),
+		insertListItems("INSERT INTO listitems VALUES(?,?)"),
+		getUserIdByUsername("SELECT id FROM users WHERE username = ?"),
+		getItemIdByNameAndUserId("SELECT id FROM items WHERE name = ? AND userid = ?"),
+		getItemsByUserId("SELECT * FROM items WHERE userid = ? ORDER BY name"),
+		getTagNamesByItemId("SELECT T.name FROM tags T, itemtags IT WHERE T.id = IT.tagid AND IT.itemid = ? ORDER BY T.name"),
+		getTagNamesByUserId("SELECT name FROM tags WHERE userid = ? ORDER BY name"),
+		getTagIdByNameAndUserId("SELECT id FROM tags WHERE name = ? AND userid = ?"),
+		getTagIdByItemId("SELECT tagid FROM itemtags WHERE itemid = ?"),
+		getItemTagCountByTagId("SELECT COUNT(*) FROM itemtags WHERE tagid = ?"),
+		getListIdByNameAndUserId("SELECT id FROM lists WHERE name = ? AND userid = ?"),
+		getListNamesByItemId("SELECT L.name FROM lists L, listitems LI WHERE L.id = LI.listid AND LI.itemid = ?"),
+		getListNameByUserId("SELECT name FROM lists WHERE userid = ? ORDER BY name"),
+		getListCountByNameAndUserId("SELECT COUNT(*) FROM lists WHERE name = ? AND userid = ?"),
+		getListItemCountByListId("SELECT COUNT(*) FROM listitems WHERE listid = ?"),
+		updateItemDescriptionByIdAndUserId("UPDATE items SET description = ? WHERE id = ? AND userid = ?"),
+		updateItemNameByIdAndUserId("UPDATE items SET name = ? WHERE id = ? AND userid = ?"),
+		updateItemModifiedByIdAndUserId("UPDATE items SET modified = ? WHERE id = ? AND userid = ?"),
+		deleteItemsById("DELETE FROM items WHERE id = ?"),
+		deleteTagById("DELETE FROM tags WHERE id = ?"),
+		deleteItemTagsByItemId("DELETE FROM itemtags WHERE itemid = ?"),
+		deleteItemTagsByItemIdAndTagId("DELETE FROM itemtags WHERE itemid = ? AND tagid = ?"),
+		deleteListById("DELETE FROM lists WHERE id = ?"),
+		deleteListItemsByItemIdAndListId("DELETE FROM listitems WHERE itemid = ? AND listid = ?");
+		
+		private String query;
+		private Queries(String query) {
+			this.query = query;
+		}
+		public String getQuery() {
+			return query;
+		}
+	}
+	
+	public String signUp(String username, String password) {
+		logger.debug("saving new user");
+		try {
+			jdbcTemplate.queryForObject(Queries.getUserIdByUsername.getQuery(), Integer.class, username);
+		}
+		catch(EmptyResultDataAccessException erdae) {
+			String encodedPassword = passwordEncoder.encode(password);
+			jdbcTemplate.update(Queries.insertUsers.getQuery(), username, encodedPassword, true);
+			jdbcTemplate.update(Queries.insertAuthorities.getQuery(), username, "ROLE_USER");
+			return "";
+		}
+		return "duplicate username";
 	}
 	
 	public List<Item> loadUserItems(String username) {
-		int userid = jdbcTemplate.queryForObject("SELECT id FROM Users3 WHERE username = ?",
-												 new String[] {username},
-												 Integer.class);
+		logger.debug("getting user items");
+		Integer userid = jdbcTemplate.queryForObject(Queries.getUserIdByUsername.getQuery(), Integer.class, username);
 		
-		List<Item> items = jdbcTemplate.query("SELECT * FROM Items3 WHERE userid = ? ORDER BY name", new Integer[] {userid},
-											  (resultSet, rowNum) -> { return new Item(
-															 			resultSet.getInt(1),
-															 			resultSet.getInt(2),
-															 			resultSet.getString(3),
-															 			resultSet.getString(4),
-															 			resultSet.getString(5),
-															 			resultSet.getString(6));
-														  			}
-		);
-		
+		List<Item> items = jdbcTemplate.query(Queries.getItemsByUserId.getQuery(), new Integer[] {userid}, (resultSet, rowNum) -> {
+			return new Item(resultSet.getInt(1), resultSet.getInt(2), resultSet.getString(3), resultSet.getString(4), resultSet.getString(5), resultSet.getString(6));
+  		});
+
 		for (Item item : items) {
-			item.setTags(jdbcTemplate.queryForList("SELECT T.name FROM Tags3 T, ItemTags3 IT WHERE T.id = IT.tagid AND IT.itemid = ? ORDER BY T.name", String.class, item.getId()));
+			item.setTags(jdbcTemplate.queryForList(Queries.getTagNamesByItemId.getQuery(), String.class, item.getId()));
 			try {
-				item.setList(jdbcTemplate.queryForObject("SELECT L.name FROM Lists3 L, ListItems3 LI WHERE L.id = LI.listid AND LI.itemid = ?", new Integer[] {item.getId()}, String.class));
-			} catch(EmptyResultDataAccessException dae) {
+				item.setList(jdbcTemplate.queryForObject(Queries.getListNamesByItemId.getQuery(), String.class, item.getId()));
+			}
+			catch(EmptyResultDataAccessException dae) {
 				item.setList("");
 			}
 		}
 		
 		return items;
 	}
+	
 	public List<String> loadUserListNames(String username) {
-		int userid = jdbcTemplate.queryForObject("SELECT id FROM Users3 WHERE username = ?", new String[] {username}, Integer.class);
-		return jdbcTemplate.queryForList("SELECT name FROM Lists3 WHERE userid = ? ORDER BY name", String.class, userid);
+		logger.debug("getting list names");
+		Integer userid = jdbcTemplate.queryForObject(Queries.getUserIdByUsername.getQuery(), Integer.class, username);
+		return jdbcTemplate.queryForList(Queries.getListNameByUserId.getQuery(), String.class, userid);
 	}
+	
 	public List<String> loadUserTagNames(String username) {
-		int userid = jdbcTemplate.queryForObject("SELECT id FROM Users3 WHERE username = ?", new String[] {username}, Integer.class);
-		return jdbcTemplate.queryForList("SELECT name FROM Tags3 WHERE userid = ? ORDER BY name", String.class, userid);
-	}
-	
-	
-	public int getUserIdByUserName(String username) {
-		return jdbcTemplate.queryForObject("SELECT id FROM Users3 WHERE username = ?", new String[] {username}, Integer.class);
+		logger.debug("getting tag names");
+		Integer userid = jdbcTemplate.queryForObject(Queries.getUserIdByUsername.getQuery(), Integer.class, username);
+		return jdbcTemplate.queryForList(Queries.getTagNamesByUserId.getQuery(), String.class, userid);
 	}
 	
 	public void createItem(String username, UpdateItem item) {
-		System.out.println("in createItem");
-		System.out.println("username = " + username);
-		System.out.println("item = " + item);
-		int userid = jdbcTemplate.queryForObject("SELECT id FROM Users3 WHERE username = ?", new String[] {username}, Integer.class);
+		logger.debug("saving item");
+//		System.out.println("in createItem");
+//		System.out.println("username = " + username);
+//		System.out.println("item = " + item);
+		Integer userid = jdbcTemplate.queryForObject(Queries.getUserIdByUsername.getQuery(), Integer.class, username);
 		
-		jdbcTemplate.update("INSERT INTO Items3 VALUES(NULL,?,?,?,?,?)", userid, item.getNewName(), item.getDescription(), item.getModified(),item.getModified());
+		jdbcTemplate.update(Queries.insertItems.getQuery(), userid, item.getNewName(), item.getDescription(), item.getModified(), item.getModified());
 		
-		int itemid = jdbcTemplate.queryForObject("SELECT id FROM Items3 WHERE name = ? AND userid = ?", new Object[] {item.getNewName(), userid}, Integer.class);
+		Integer itemid = jdbcTemplate.queryForObject(Queries.getItemIdByNameAndUserId.getQuery(), Integer.class, item.getNewName(), userid);
 		
 		if (item.getNewList() != "") {
-			int listid = -1;
+			Integer listid = -1;
 			try {
-				listid = jdbcTemplate.queryForObject("SELECT id FROM Lists3 WHERE name = ? AND userid = ?", new Object[] {item.getNewList(), userid}, Integer.class);
+				listid = jdbcTemplate.queryForObject(Queries.getListIdByNameAndUserId.getQuery(), Integer.class, item.getNewList(), userid);
 			}
 			catch(EmptyResultDataAccessException e) {
-				jdbcTemplate.update("INSERT INTO Lists3 VALUES(NULL,?,?,?,?,?)", userid, item.getNewList(), "", item.getModified(), item.getModified());
-				listid = jdbcTemplate.queryForObject("SELECT id FROM Lists3 WHERE name = ? AND userid = ?", new Object[] {item.getNewList(), userid}, Integer.class);
+				jdbcTemplate.update(Queries.insertLists.getQuery(), userid, item.getNewList(), "", item.getModified(), item.getModified());
+				listid = jdbcTemplate.queryForObject(Queries.getListIdByNameAndUserId.getQuery(), Integer.class, item.getNewList(), userid);
 			}
 			finally {
-				jdbcTemplate.update("INSERT INTO ListItems3 VALUES(?,?)", listid, itemid);
+				jdbcTemplate.update(Queries.insertListItems.getQuery(), listid, itemid);
 			}
 		}
-		System.out.println("adding tags to item");
+//		System.out.println("adding tags to item");
 		for (String tagName : item.getAddedTags()) {
-			int tagid = -1;
+			Integer tagid = -1;
 			try {
-				tagid = jdbcTemplate.queryForObject("SELECT id FROM Tags3 WHERE name = ? AND userid = ?", new Object[] {tagName, userid}, Integer.class);
+				tagid = jdbcTemplate.queryForObject(Queries.getTagIdByNameAndUserId.getQuery(), Integer.class, tagName, userid);
 			}
 			catch(EmptyResultDataAccessException e) {
-				jdbcTemplate.update("INSERT INTO Tags3 VALUES(NULL,?,?)", userid, tagName);
-				tagid = jdbcTemplate.queryForObject("SELECT id FROM Tags3 WHERE name = ? AND userid = ?", new Object[] {tagName, userid}, Integer.class);
+				jdbcTemplate.update(Queries.insertTags.getQuery(), userid, tagName);
+				tagid = jdbcTemplate.queryForObject(Queries.getTagIdByNameAndUserId.getQuery(), Integer.class, tagName, userid);
 			}
 			finally {
-				System.out.println("in finally");
-				System.out.println("tagid = " + tagid);
-				System.out.println("itemid = " + itemid);
-				jdbcTemplate.update("INSERT INTO ItemTags3 VALUES(?,?)", itemid, tagid);
+//				System.out.println("in finally");
+//				System.out.println("tagid = " + tagid);
+//				System.out.println("itemid = " + itemid);
+				jdbcTemplate.update(Queries.insertItemTags.getQuery(), itemid, tagid);
 			}
 		}
 	}
 	
 	public void updateItem(String username, UpdateItem item) {
-		System.out.println("in updateItem");
-		System.out.println("username = " + username);
-		System.out.println("item = " + item);
-		System.out.println("newlist = " + item.getNewList());
-		System.out.println("oldlist = " + item.getOldList());
+		logger.debug("saving updates");
+//		System.out.println("in updateItem");
+//		System.out.println("username = " + username);
+//		System.out.println("item = " + item);
+//		System.out.println("newlist = " + item.getNewList());
+//		System.out.println("oldlist = " + item.getOldList());
 		
-		
-		int userid = jdbcTemplate.queryForObject("SELECT id FROM Users3 WHERE username = ?", new String[] {username}, Integer.class);
-		int itemid = jdbcTemplate.queryForObject("SELECT id FROM Items3 WHERE name = ? AND userid = ?", new Object[] {item.getOldName(), userid}, Integer.class);
-		System.out.println("itemid = " + itemid);
+		Integer userid = jdbcTemplate.queryForObject(Queries.getUserIdByUsername.getQuery(), Integer.class, username);
+		Integer itemid = jdbcTemplate.queryForObject(Queries.getItemIdByNameAndUserId.getQuery(), Integer.class, item.getOldName(), userid);
+//		System.out.println("itemid = " + itemid);
 		
 		if (item.getNewName() != "") {
-			jdbcTemplate.update("UPDATE Items3 SET name = ? WHERE id = ? AND userid = ?", item.getNewName(), itemid, userid);
+			jdbcTemplate.update(Queries.updateItemNameByIdAndUserId.getQuery(), item.getNewName(), itemid, userid);
 		}
 		if (item.getOldList() != "") {
-			System.out.println("updating oldList");
-			int listid = jdbcTemplate.queryForObject("SELECT id FROM Lists3 WHERE name = ? AND userid = ?", new Object[] {item.getOldList(), userid}, Integer.class);
-			jdbcTemplate.update("DELETE FROM ListItems3 WHERE itemid = ? AND listid = ?", itemid, listid);
-			if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ListItems3 WHERE listid = ?", new Object[] {listid}, Integer.class).equals(0)) {
-				jdbcTemplate.update("DELETE FROM Lists3 WHERE id = ?", listid);
+//			System.out.println("updating oldList");
+			Integer listid = jdbcTemplate.queryForObject(Queries.getListIdByNameAndUserId.getQuery(), Integer.class, item.getOldList(), userid);
+			jdbcTemplate.update(Queries.deleteListItemsByItemIdAndListId.getQuery(), itemid, listid);
+			if (jdbcTemplate.queryForObject(Queries.getListItemCountByListId.getQuery(), Integer.class, listid).equals(0)) {
+				jdbcTemplate.update(Queries.deleteListById.getQuery(), listid);
 			}
 		}
 		if (item.getNewList() != "") {
-			System.out.println("updating newList");
-			if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM Lists3 WHERE name = ? AND userid = ?", new Object[] {item.getNewList(), userid}, Integer.class).equals(0)) {
-				System.out.println("inserting into lists");
-				jdbcTemplate.update("INSERT INTO Lists3 VALUES(NULL,?,?,?,?,?)", userid, item.getNewList(), "", item.getModified(), item.getModified());
+//			System.out.println("updating newList");
+			if (jdbcTemplate.queryForObject(Queries.getListCountByNameAndUserId.getQuery(), Integer.class, item.getNewList(), userid).equals(0)) {
+//				System.out.println("inserting into lists");
+				jdbcTemplate.update(Queries.insertLists.getQuery(), userid, item.getNewList(), "", item.getModified(), item.getModified());
 			}
-			System.out.println("newlist = " + item.getNewList());
-			System.out.println("userid = " + userid);
-			System.out.println(jdbcTemplate.queryForObject("SELECT id FROM Lists3 WHERE name = ? AND userid = ?", new Object[] {item.getNewList(), userid}, Integer.class));
-			int listid = jdbcTemplate.queryForObject("SELECT id FROM Lists3 WHERE name = ? AND userid = ?", new Object[] {item.getNewList(), userid}, Integer.class);
-			jdbcTemplate.update("INSERT INTO ListItems3 VALUES(?,?)", new Object[] {listid, itemid});
+//			System.out.println("newlist = " + item.getNewList());
+//			System.out.println("userid = " + userid);
+//			System.out.println(jdbcTemplate.queryForObject("SELECT id FROM Lists WHERE name = ? AND userid = ?", new Object[] {item.getNewList(), userid}, Integer.class));
+			Integer listid = jdbcTemplate.queryForObject(Queries.getListIdByNameAndUserId.getQuery(), Integer.class, item.getNewList(), userid);
+			jdbcTemplate.update(Queries.insertListItems.getQuery(), listid, itemid);
 			
 		}
 		if (item.getDescription() != "") {
-			System.out.println("updating description");
-			jdbcTemplate.update("UPDATE Items3 SET description = ? WHERE id = ? AND userid = ?", item.getDescription(), itemid, userid);
+//			System.out.println("updating description");
+			jdbcTemplate.update(Queries.updateItemDescriptionByIdAndUserId.getQuery(), item.getDescription(), itemid, userid);
 		}
 		if (!item.getAddedTags().isEmpty()) {
-			System.out.println("adding tags to item");
+//			System.out.println("adding tags to item");
 			for (String tagName : item.getAddedTags()) {
-				System.out.println("tagName = " + tagName);
-				int tagid = -1;
+//				System.out.println("tagName = " + tagName);
+				Integer tagid = -1;
 				try {
-					System.out.println("in try");
-					tagid = jdbcTemplate.queryForObject("SELECT id FROM Tags3 WHERE name = ? AND userid = ?", new Object[] {tagName, userid}, Integer.class);
+//					System.out.println("in try");
+					tagid = jdbcTemplate.queryForObject(Queries.getTagIdByNameAndUserId.getQuery(), Integer.class, tagName, userid);
 				}
 				catch(EmptyResultDataAccessException e) {
-					System.out.println("class = " + e.getClass());
-					System.out.println("in catch");
-					jdbcTemplate.update("INSERT INTO Tags3 VALUES(NULL,?,?)", userid, tagName);
-					tagid = jdbcTemplate.queryForObject("SELECT id FROM Tags3 WHERE name = ? AND userid = ?", new Object[] {tagName, userid}, Integer.class);
+//					System.out.println("class = " + e.getClass());
+//					System.out.println("in catch");
+					jdbcTemplate.update(Queries.insertTags.getQuery(), userid, tagName);
+					tagid = jdbcTemplate.queryForObject(Queries.getTagIdByNameAndUserId.getQuery(), Integer.class, tagName, userid);
 				}
 				finally {
-					System.out.println("in finally");
-					System.out.println("tagid = " + tagid);
-					System.out.println("itemid = " + itemid);
-					jdbcTemplate.update("INSERT INTO ItemTags3 VALUES(?,?)", itemid, tagid);
+//					System.out.println("in finally");
+//					System.out.println("tagid = " + tagid);
+//					System.out.println("itemid = " + itemid);
+					jdbcTemplate.update(Queries.insertItemTags.getQuery(), itemid, tagid);
 				}
 			}
 		}
 		if (!item.getRemovedTags().isEmpty()) {
-			System.out.println("removing tags from item");
+//			System.out.println("removing tags from item");
 			for (String tagName : item.getRemovedTags()) {
-				int tagid = -1;
-				tagid = jdbcTemplate.queryForObject("SELECT id FROM Tags3 WHERE name = ? AND userid = ?", new Object[] {tagName, userid}, Integer.class);
-				jdbcTemplate.update("DELETE FROM ItemTags3 WHERE itemid = ? AND tagid = ?", itemid, tagid);
-				if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ItemTags3 WHERE tagid = ?", new Object[] {tagid}, Integer.class).equals(0)) {
-					jdbcTemplate.update("DELETE FROM Tags3 WHERE id = ?", tagid);
+				Integer tagid = -1;
+				tagid = jdbcTemplate.queryForObject(Queries.getTagIdByNameAndUserId.getQuery(), Integer.class, tagName, userid);
+				jdbcTemplate.update(Queries.deleteItemTagsByItemIdAndTagId.getQuery(), itemid, tagid);
+				if (jdbcTemplate.queryForObject(Queries.getItemTagCountByTagId.getQuery(), Integer.class, tagid).equals(0)) {
+					jdbcTemplate.update(Queries.deleteTagById.getQuery(), tagid);
 				}
 			}
 		}
 		
-		jdbcTemplate.update("UPDATE Items3 SET modified = ? WHERE id = ? AND userid = ?", item.getModified(), itemid, userid);
+		jdbcTemplate.update(Queries.updateItemModifiedByIdAndUserId.getQuery(), item.getModified(), itemid, userid);
 	}
 	
 	public void deleteItem(String username, UpdateItem item) {
-		int userid = jdbcTemplate.queryForObject("SELECT id FROM Users3 WHERE username = ?", new String[] {username}, Integer.class);
-		int itemid = jdbcTemplate.queryForObject("SELECT id FROM Items3 WHERE name = ? AND userid = ?", new Object[] {item.getOldName(), userid}, Integer.class);
+		logger.debug("removing item");
+		Integer userid = jdbcTemplate.queryForObject(Queries.getUserIdByUsername.getQuery(), Integer.class, username);
+		Integer itemid = jdbcTemplate.queryForObject(Queries.getItemIdByNameAndUserId.getQuery(), Integer.class, item.getOldName(), userid);
 		
-		List<Integer> tagids = jdbcTemplate.queryForList("SELECT tagid FROM ItemTags3 WHERE itemid = ?", new Object[] {itemid}, Integer.class);
+		List<Integer> tagids = jdbcTemplate.queryForList(Queries.getTagIdByItemId.getQuery(), Integer.class, itemid);
 		
-		jdbcTemplate.update("DELETE FROM ItemTags3 WHERE itemid = ?", itemid);
+		jdbcTemplate.update(Queries.deleteItemTagsByItemId.getQuery(), itemid);
 		
 		for (Integer tagid : tagids) {
-			if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ItemTags3 WHERE tagid = ?", new Object[] {tagid}, Integer.class).equals(0)) {
-				jdbcTemplate.update("DELETE FROM Tags3 WHERE id = ?", tagid);
+			if (jdbcTemplate.queryForObject(Queries.getItemTagCountByTagId.getQuery(), Integer.class, tagid).equals(0)) {
+				jdbcTemplate.update(Queries.deleteTagById.getQuery(), tagid);
 			}
 		}
 		
 		if (item.getOldList() != "") {
-			int listid = jdbcTemplate.queryForObject("SELECT id FROM Lists3 WHERE name = ? AND userid = ?", new Object[] {item.getOldList(), userid}, Integer.class);
-			jdbcTemplate.update("DELETE FROM ListItems3 WHERE itemid = ? AND listid = ?", itemid, listid);
-			if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ListItems3 WHERE listid = ?", new Object[] {listid}, Integer.class).equals(0)) {
-				jdbcTemplate.update("DELETE FROM Lists3 WHERE id = ?", listid);
+			Integer listid = jdbcTemplate.queryForObject(Queries.getListIdByNameAndUserId.getQuery(), Integer.class, item.getOldList(), userid);
+			jdbcTemplate.update(Queries.deleteListItemsByItemIdAndListId.getQuery(), itemid, listid);
+			if (jdbcTemplate.queryForObject(Queries.getListItemCountByListId.getQuery(), Integer.class, listid).equals(0)) {
+				jdbcTemplate.update(Queries.deleteListById.getQuery(), listid);
 			}
 		}
 		
-		jdbcTemplate.update("DELETE FROM Items3 WHERE id = ?", itemid);
+		jdbcTemplate.update(Queries.deleteItemsById.getQuery(), itemid);
 	}
 	
-	
-	// CREATE:
-	// check if item name present for that user
-	// if item name present, do nothing
-	// else
-	// for each old tag:
-	// 		delete from itemtags, if last one present in itemtags
-	// for each new tag:
-	// 		check if tag is already in itemTags, if so, then no action, else insert into itemtags, and if not present at all in tags, then insert there
-	// for each deleted old tag, if last one in itemtags
-	// 		delete from tags too
-	// if oldlist, then remove from listitems, if last one present in listitems, then remove from lists
-	// if newlist, then add to listitems, if not already present in lists, then add to lists
-	// update description
-	// update modified
-	//
-	// UPDATE: same as CREATE except item should be present rather than not present, and need to check whether new item name is already taken or not,
-	// 		   and if new item name not already taken, then update it; otherwise, no action
-	// DELETE: check if item there, andd if so, delete; otherwise, no action
-	// remove tags from itemtags, if any of them are the last in itemtags, then remove from items as well
-	// remove list, if any, from listitems, if last one there, then remove from lists as well
-	
-	
-	
-	
-	
-	
-////	public String getName() {
-////	return jdbcTemplate.queryForObject(Query.getName.getQuery(), String.class, 1, 5);
-////}
-////
-////public String checkUser(String username) {
-////	return jdbcTemplate.queryForObject(Query.getUser.getQuery(), String.class, username); // is there way to gracefully handle exception instead of having extra query?
-////}
-//
-//public void addUserItem() {
-////	jdbcTemplate.update("INSERT INTO Items3 VALUES(?,'ROLE_USER')", username);
-//}
-//
-//public void updateUserItem() {
-//	
-//}
-//
-//public void removeUserItem() {
-//	
-//}
-//	public void testEncode(String password) {
-//		System.out.println(passwordEncoder.encode(password));
-//	}
 }

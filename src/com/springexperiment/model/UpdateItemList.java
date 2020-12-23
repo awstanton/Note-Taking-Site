@@ -6,17 +6,15 @@ import java.util.List;
 public class UpdateItemList {
 	private List<UpdateItem> updateItems;
 	
-	public List<UpdateItem> getUpdateItems() {
-		return updateItems;
-	}
-
-	public void setUpdateItems(List<UpdateItem> updateItems) {
-		this.updateItems = updateItems;
-	}
-
 	public UpdateItemList() {
 		super();
 		updateItems = new ArrayList<UpdateItem>();
+	}
+	public List<UpdateItem> getUpdateItems() {
+		return updateItems;
+	}
+	public void setUpdateItems(List<UpdateItem> updateItems) {
+		this.updateItems = updateItems;
 	}
 	
 	public UpdateItem get(int index) {
@@ -33,8 +31,6 @@ public class UpdateItemList {
 			result += updateItems.get(updateItems.size() - 1);
 		}
 		
-		
 		return result;
 	}
-	
 }

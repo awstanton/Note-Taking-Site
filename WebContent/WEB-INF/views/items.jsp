@@ -27,7 +27,7 @@
 				<%@include file="/WEB-INF/views/inputItem.jsp" %>
 				<c:forEach var="item" items="${items}">
 					<div class="itemName">
-						<span class="itemNameElement" contentEditable="false" maxlength="60" spellcheck="false">${item.name}</span>
+						<span class="itemNameElement" contentEditable="false" maxlength="60" spellcheck="false"><c:out value="${item.name}"/></span>
 						<span class="itemMinus displayNone">-</span>
 					</div>
 					<div class="itemCard displayNone">
@@ -35,21 +35,21 @@
 							<label class="block italic inputList">List:
 							<c:if test="${empty item.list}">
 								<input class="listInput" list="listOptions" maxlength="60"/>
-								<span class="listName displayNone nonItalic">${item.list}</span>
+								<span class="listName displayNone nonItalic"><c:out value="${item.list}"/></span>
 							</c:if>
 							<c:if test="${not empty item.list}">
 								<input class="listInput displayNone" list="listOptions" maxlength="60"/>
-								<span class="listName nonItalic">${item.list}</span>
+								<span class="listName nonItalic"><c:out value="${item.list}"/></span>
 							</c:if>
 							</label>
 							<br/>
 							<div class="dates">
-								<label class="created italic block">Created: <span class="nonItalic">${item.created}</span></label>
-								<label class="modified italic block">Modified: <span class="nonItalic">${item.modified}</span></label>
+								<label class="created italic block">Created: <span class="nonItalic"><c:out value="${item.created}"/></span></label>
+								<label class="modified italic block">Modified: <span class="nonItalic"><c:out value="${item.modified}"/></span></label>
 							</div>
 						</div>
 						<div class="itemCardCenter">
-							<textarea class="description" maxlength="500" placeholder="Description:" rows="5" cols="50" spellcheck="false">${item.description}</textarea>
+							<textarea class="description" maxlength="500" placeholder="Description:" rows="5" cols="50" spellcheck="false"><c:out value="${item.description}"/></textarea>
 						</div>
 						<div class="itemCardRight">
 							<div class="tagsPlusAndMinus"><span class="tagsPlus">+</span><span class="tagsMinus">-</span></div>
@@ -63,7 +63,7 @@
 									<input class="inputTag" list="tagOptions" placeholder="Tag:" maxlength="60"/>
 								</c:if>
 								<c:forEach var="tag" items="${item.tags}">
-									<div class="tag"><span class="tagName">${tag}</span><span class="tagMinus displayNone">-</span></div>
+									<div class="tag"><span class="tagName"><c:out value="${tag}"/></span><span class="tagMinus displayNone">-</span></div>
 								</c:forEach>
 							</div>
 						</div>
@@ -98,7 +98,15 @@
 				<div id="expandCollapseAll">Expand/Collapse All</div>
 			</div>
 		</div>
-		<script src="<c:url value="/resources/js/experiment.js"/>"></script>
+		<div id="loading" class="displayNone fadeIn fadeOut">
+			<c:out value="Loading"/>
+		</div>
+		<script src="<c:url value="/resources/js/state.js"/>"></script>
+		<script src="<c:url value="/resources/js/registerer.js"/>"></script>
+		<script src="<c:url value="/resources/js/displayHandlers.js"/>"></script>
+		<script src="<c:url value="/resources/js/handlers.js"/>"></script>
+		<script src="<c:url value="/resources/js/saver.js"/>"></script>
+		<script src="<c:url value="/resources/js/display.js"/>"></script>
 		<form id="logoutForm" method="post" class="displayNone" action="<c:url value="/logoutSave" />">
 			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 		</form>
