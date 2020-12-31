@@ -107,7 +107,7 @@
 		<script src="<c:url value="/resources/js/handlers.js"/>"></script>
 		<script src="<c:url value="/resources/js/saver.js"/>"></script>
 		<script src="<c:url value="/resources/js/display.js"/>"></script>
-		<form id="logoutForm" method="post" class="displayNone" action="<c:url value="/logoutSave" />">
+		<form id="logoutForm" method="post" class="displayNone" action="<c:url value="/logout" />">
 			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 		</form>
 	</body>

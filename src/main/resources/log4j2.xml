@@ -2,7 +2,8 @@
 <!DOCTYPE XML>
 <Configuration status="DEBUG">
 	<Properties>
-		<Property name="logFilePath">C:\apache-tomcat-9.0.26\logs</Property>
+		<!-- <Property name="logFilePath">C:\apache-tomcat-9.0.26\logs</Property> -->
+		<Property name="logFilePath">C:\Users\Andrew\eclipse-workspace\SpringMVCExperiment\logs</Property>
 	</Properties>
 	<Appenders>
 		<Console name="ConsoleAppender" target="SYSTEM_OUT">
@@ -32,6 +33,12 @@
 			<AppenderRef ref="ConsoleAppender" />
 		</Logger>
 		<Logger name="com.springexperiment.validator.UpdateItemListValidator" level="debug" additivity="false">
+			<AppenderRef ref="ConsoleAppender" />
+		</Logger>
+		<Logger name="com.springexperiment.security.ExperimentCookieClearingLogoutHandler" level="debug" additivity="false">
+			<AppenderRef ref="ConsoleAppender" />
+		</Logger>
+		<Logger name="com.springexperiment.security.ExperimentSecurityContextLogoutHandler" level="debug" additivity="false">
 			<AppenderRef ref="ConsoleAppender" />
 		</Logger>
 	</Loggers>

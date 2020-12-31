@@ -231,7 +231,7 @@ var refreshing = false;
 				else {
 					var logoutForm = document.getElementById("logoutForm");
 					logoutForm.action = "/SpringMVCExperiment/logout";
-					logoutForm.method = "get";
+					logoutForm.method = "post";
 					logoutForm.submit();
 				}
 			}

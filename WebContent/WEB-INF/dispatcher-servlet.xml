@@ -63,53 +63,56 @@
 
 
 	<sec:debug />
-
-	<sec:http pattern="/resources/**/*.ico" security="none" />
-	<sec:http use-expressions="true">
+	<sec:http pattern="/resources/**/*.ico" security="none" /><!-- is this required? -->
+	<sec:http disable-url-rewriting="true" create-session="ifRequired" use-expressions="true">
+		<sec:http-basic />
+		<sec:csrf />
+		<sec:form-login login-page="/login"
+			default-target-url="/items"
+			always-use-default-target="true"
+			authentication-failure-url="/login?error"
+			username-parameter="username"
+			password-parameter="password"/> <!-- NOT SURE IF DELETE-COOKIES IS NEEDED HERE -->
+		<sec:logout
+			invalidate-session="true"
+			logout-url="/logout"
+			logout-success-url="/login?logout"
+			delete-cookies="JSESSIONID"/><!-- delete-cookies="JSESSIONID" --><!-- perhaps configure a LogoutSuccessHandler and/or LogoutHandler -->
+		<!-- <sec:remember-me key="uniqueAndSecret" token-validity-seconds="86400"/> -->
+		<sec:session-management invalid-session-url="/login?invalid" session-fixation-protection="newSession">
+			<sec:concurrency-control
+				max-sessions="1"
+				error-if-maximum-exceeded="true"
+				expired-url="/login?expired" />
+		</sec:session-management>
 		<sec:intercept-url pattern="/" access="permitAll" requires-channel="https" />
 		<sec:intercept-url pattern="/login" access="permitAll" requires-channel="https" />
 		<sec:intercept-url pattern="/signup" access="permitAll" requires-channel="https" />
 		<sec:intercept-url pattern="/logout" access="hasRole('ROLE_USER')" requires-channel="https" />
 		<sec:intercept-url pattern="/resources/**/*.js" access="permitAll" requires-channel="https" />
 		<sec:intercept-url pattern="/resources/**/*.css" access="permitAll" requires-channel="https" />
-<!-- 		<sec:intercept-url pattern="/admin" access="hasRole('ROLE_ADMIN')" requires-channel="https" /> -->
 		<sec:intercept-url pattern="/items" access="hasRole('ROLE_USER')" requires-channel="https" />
 		<sec:intercept-url pattern="/update" access="hasRole('ROLE_USER')" requires-channel="https" />
 		<sec:intercept-url pattern="/updateItem" access="hasRole('ROLE_USER')" requires-channel="https" />
 		<sec:intercept-url pattern="/newItem" access="hasRole('ROLE_USER')" requires-channel="https" />
 		<sec:intercept-url pattern="/logoutSave" access="hasRole('ROLE_USER')" requires-channel="https" />
 		<sec:intercept-url pattern="/**" access="denyAll" requires-channel="https" />
-		
 		<sec:access-denied-handler error-page="/denied" /> <!-- perhaps configure AuthenticationSuccessHandler and AuthenticationFailureHandler or AuthenticationEntryPoint -->
-		<sec:form-login login-page="/login"
-			default-target-url="/items"
-			always-use-default-target="true"
-			authentication-failure-url="/login?error"
-			username-parameter="username"
-			password-parameter="password" /> <!-- NOT SURE IF DELETE-COOKIES IS NEEDED HERE -->
-		<sec:logout logout-url="/logout" logout-success-url="/login?logout" delete-cookies="JSESSIONID"/> <!-- perhaps configure a LogoutSuccessHandler and/or LogoutHandler -->
-		<sec:http-basic/>
-<!-- 		<sec:csrf /> -->
-		<sec:session-management>
-			<sec:concurrency-control max-sessions="1" error-if-maximum-exceeded="true" expired-url="/login?error" />
-		</sec:session-management>
 	</sec:http>
-	
-	<!-- daoAuthenticationProvider -->
-	
 	<sec:authentication-manager>
 		<sec:authentication-provider>
-			<sec:password-encoder ref="passwordEncoder"/>
+			<sec:password-encoder ref="passwordEncoder" />
 			<sec:jdbc-user-service data-source-ref="dataSource"
-									users-by-username-query="SELECT username, password, enabled FROM users WHERE username = ?"
-									authorities-by-username-query="SELECT username, authority FROM authorities WHERE username = ?" />
-<!-- 									users-by-username-query="SELECT username, password, enabled FROM Users2 WHERE username = ?" -->
-<!-- 									authorities-by-username-query="SELECT username, authority FROM Authorities2 WHERE username = ?" /> -->
+								   users-by-username-query="SELECT username, password, enabled FROM users WHERE username = ?"
+								   authorities-by-username-query="SELECT username, authority FROM authorities WHERE username = ?" />
+<!-- 							   users-by-username-query="SELECT username, password, enabled FROM Users2 WHERE username = ?" -->
+<!-- 							   authorities-by-username-query="SELECT username, authority FROM Authorities2 WHERE username = ?" /> -->
 		</sec:authentication-provider>
 	</sec:authentication-manager>
-
+	
 
 </beans>
+	<!-- daoAuthenticationProvider -->
 <!-- 	<bean id="sessionRegistry" -->
 	<!-- 
 	specifying either annotation-driven AND default-servlet-handler OR annotation-driven AND resources works, even when controller without @Controller

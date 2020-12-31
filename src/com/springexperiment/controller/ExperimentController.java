@@ -12,6 +12,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,8 +83,8 @@ public class ExperimentController {
 		return "login";
 	}
 	
-	@PostMapping("/logoutSave")
-	public String logout(@ModelAttribute("updateItems") @Validated UpdateItemList updateItems, BindingResult result, Principal principal) {
+	@PostMapping("/logout")
+	public String logout(@ModelAttribute("updateItems") @Validated UpdateItemList updateItems, BindingResult result, Principal principal, HttpSession session) {
 		logger.debug("log out saving");
 		
 		if (result.hasErrors()) {
@@ -105,14 +106,25 @@ public class ExperimentController {
 				break;
 			}
 		}
-		return "redirect:/logout";
+		return "logout";
 	}
 	
-	@GetMapping("/logout")
-	public String logout() {
-		logger.debug("logging out");
-		return "login";
-	}
+//	@GetMapping("/logout")
+//	@PostMapping("/logout")
+//	public String logout() {
+//		logger.debug("logging out post");
+//		return "login";
+//	}
+
+//	@GetMapping("/logout")
+//	public String logout(HttpServletRequest request, HttpServletResponse response) {
+//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        if (auth != null) {
+//            new SecurityContextLogoutHandler().logout(request, response, auth);
+//        }
+//          
+//        return "redirect:/login?logout";
+//	}
 
 	@PostMapping("/signup")
 	public ModelAndView signup(@RequestParam("username") String username, @RequestParam("password") String password, @RequestParam("confirmPassword") String confirmPassword) {
