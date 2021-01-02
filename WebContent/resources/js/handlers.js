@@ -197,7 +197,7 @@ that looks for unused lists or tags. DO NOT WORRY ABOUT IT NOW. FOR NOW, ALL OF 
 								  }
 								  return tagList;
 							})(),
-							modified: time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate()
+							modified: time.getFullYear() + '-' + ('0' + (time.getMonth() + 1)).slice(-2) + '-' + ('0' + time.getDate()).slice(-2)
 					  });
 					
 //					console.log("reguestQueue:");
@@ -259,7 +259,7 @@ that looks for unused lists or tags. DO NOT WORRY ABOUT IT NOW. FOR NOW, ALL OF 
 								description: updatedItemCard.querySelector(".description").value,
 								oldTags: [],
 								newTags: [newTagName.innerText],
-								modified: time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate()
+								modified: time.getFullYear() + '-' + ('0' + (time.getMonth() + 1)).slice(-2) + '-' + ('0' + time.getDate()).slice(-2)
 							});
 					}
 					else {
@@ -342,7 +342,7 @@ that looks for unused lists or tags. DO NOT WORRY ABOUT IT NOW. FOR NOW, ALL OF 
 								description: event.target.parentElement.nextElementSibling.querySelector(".description").value,
 								newTags: [],
 								oldTags: [],
-								modified: time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate()
+								modified: time.getFullYear() + '-' + ('0' + (time.getMonth() + 1)).slice(-2) + '-' + ('0' + time.getDate()).slice(-2)
 							});
 					}
 					else { // either created already or already updated
@@ -435,7 +435,7 @@ that looks for unused lists or tags. DO NOT WORRY ABOUT IT NOW. FOR NOW, ALL OF 
 							description: "",
 							newTags: [],
 							oldTags: [],
-							modified: time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate()
+							modified: time.getFullYear() + '-' + ('0' + (time.getMonth() + 1)).slice(-2) + '-' + ('0' + time.getDate()).slice(-2)
 						});
 				}
 				else {
@@ -520,7 +520,7 @@ that looks for unused lists or tags. DO NOT WORRY ABOUT IT NOW. FOR NOW, ALL OF 
 						description: event.target.value,
 						newTags: [],
 						oldTags: [],
-						modified: time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate()
+						modified: time.getFullYear() + '-' + ('0' + (time.getMonth() + 1)).slice(-2) + '-' + ('0' + time.getDate()).slice(-2)
 					});
 			}
 			else {
@@ -571,7 +571,7 @@ that looks for unused lists or tags. DO NOT WORRY ABOUT IT NOW. FOR NOW, ALL OF 
 						description: "",
 						newTags: [],
 						oldTags: [],
-						modified: time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate()
+						modified: time.getFullYear() + '-' + ('0' + (time.getMonth() + 1)).slice(-2) + '-' + ('0' + time.getDate()).slice(-2)
 					});
 				
 //				console.log("reguestQueue:");
@@ -595,7 +595,7 @@ that looks for unused lists or tags. DO NOT WORRY ABOUT IT NOW. FOR NOW, ALL OF 
 							description: "",
 							newTags: [],
 							oldTags: [],
-							modified: time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate()
+							modified: time.getFullYear() + '-' + ('0' + (time.getMonth() + 1)).slice(-2) + '-' + ('0' + time.getDate()).slice(-2)
 						});
 					
 //					console.log("reguestQueue:");
@@ -639,7 +639,7 @@ that looks for unused lists or tags. DO NOT WORRY ABOUT IT NOW. FOR NOW, ALL OF 
 							description: updatedItemCard.querySelector(".description").value,
 							newTags: [],
 							oldTags: [event.target.previousElementSibling.innerText],
-							modified: time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate()
+							modified: time.getFullYear() + '-' + ('0' + (time.getMonth() + 1)).slice(-2) + '-' + ('0' + time.getDate()).slice(-2)
 						});
 				}
 				else {

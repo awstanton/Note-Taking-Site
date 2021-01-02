@@ -10,6 +10,7 @@ import com.springexperiment.model.UpdateItem;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 //import org.springframework.web.bind.annotation.RequestAttribute;
 //import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 //import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -45,6 +47,9 @@ import com.springexperiment.model.Item;
 import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 @RequestMapping(value="/")
 public class ExperimentController {
@@ -82,8 +87,14 @@ public class ExperimentController {
 		logger.debug("logging in");
 		return "login";
 	}
+//	@PostMapping("/login")
+//	public String logIn() {
+//		System.out.println("logIn");
+//		return "redirect:/items";
+//	}
 	
-	@PostMapping("/logout")
+	
+	@PostMapping("/logoutSave")
 	public String logout(@ModelAttribute("updateItems") @Validated UpdateItemList updateItems, BindingResult result, Principal principal, HttpSession session) {
 		logger.debug("log out saving");
 		
@@ -106,15 +117,32 @@ public class ExperimentController {
 				break;
 			}
 		}
-		return "logout";
+		session.invalidate();
+		
+		return "redirect:/login?logout";
 	}
 	
-//	@GetMapping("/logout")
-//	@PostMapping("/logout")
-//	public String logout() {
-//		logger.debug("logging out post");
-//		return "login";
-//	}
+	@GetMapping("/logout")
+	public String logout(HttpServletRequest req, HttpServletResponse res, HttpSession session) {
+		logger.debug("logging out");
+		
+//		session.invalidate();
+//		
+//		Cookie[] cookies = req.getCookies();
+//		for (Cookie cookie : cookies) {
+//			cookie.setValue("");
+//			cookie.setPath("/");
+//			cookie.setMaxAge(0);
+//			res.addCookie(cookie);
+//		}
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	      if (auth != null) {
+	          new SecurityContextLogoutHandler().logout(req, res, auth);
+	      }
+		
+		return "redirect:/login?logout";
+	}
 
 //	@GetMapping("/logout")
 //	public String logout(HttpServletRequest request, HttpServletResponse response) {

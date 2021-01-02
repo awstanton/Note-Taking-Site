@@ -1,11 +1,13 @@
 package com.springexperiment.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.dao.DataAccessException;
 //import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,7 +18,7 @@ import com.springexperiment.model.Item;
 import com.springexperiment.model.UpdateItem;
 
 public class ExperimentDao {
-	private static final Logger logger = LogManager.getLogger(ExperimentController.class);
+	private static final Logger logger = LogManager.getLogger(ExperimentDao.class);
 	private PasswordEncoder passwordEncoder;
 	private JdbcTemplate jdbcTemplate;
 	
@@ -35,6 +37,8 @@ public class ExperimentDao {
 		insertItemTags("INSERT INTO itemtags VALUES(?,?)"),
 		insertLists("INSERT INTO lists VALUES(NULL,?,?,?,?,?)"),
 		insertListItems("INSERT INTO listitems VALUES(?,?)"),
+		getPwdByUsername("SELECT password FROM users WHERE username = ?"),
+		getAuthorities("SELECT authority FROM authorities WHERE username = ?"),
 		getUserIdByUsername("SELECT id FROM users WHERE username = ?"),
 		getItemIdByNameAndUserId("SELECT id FROM items WHERE name = ? AND userid = ?"),
 		getItemsByUserId("SELECT * FROM items WHERE userid = ? ORDER BY name"),
@@ -79,6 +83,30 @@ public class ExperimentDao {
 			return "";
 		}
 		return "duplicate username";
+	}
+	
+	public String getPassword(String username) {
+		System.out.println("getting pwd");
+		try {
+			System.out.println("user exists!");
+			return jdbcTemplate.queryForObject(Queries.getPwdByUsername.getQuery(), String.class, username);
+		}
+		catch(EmptyResultDataAccessException erdae) {
+			System.out.println("user does not exist!");
+			return "";
+		}
+	}
+	
+	public List<String> getAuthorities(String username) {
+		System.out.println("getting authorities");
+		try {
+			System.out.println("successfully got authorities");
+			return jdbcTemplate.queryForList(Queries.getAuthorities.getQuery(), String.class, username);
+		}
+		catch(DataAccessException dae) {
+			System.out.println("error when getting authorities");
+			return new ArrayList<>();
+		}
 	}
 	
 	public List<Item> loadUserItems(String username) {

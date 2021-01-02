@@ -157,12 +157,13 @@ var refreshing = false;
 	//				console.log("event target id is logoutLink");
 				// save and then log out
 				if (state.changesMap.size > 0) {
-	//					console.log("state.changesMap size is greater than 0");
+						console.log("state.changesMap size is greater than 0");
 					var i = 0;
 					var logoutForm = document.getElementById("logoutForm");
 					
 					state.changesMap.forEach(
 						(value, key, map) => {
+							console.log("another change");
 							// prepare removedTags string
 							var removedTags = "";
 							for (var j = 0; j < value.oldTags.length - 1; ++j) {
@@ -229,9 +230,10 @@ var refreshing = false;
 				}
 				// nothing to save; just log out
 				else {
+					console.log("nothing to save");
 					var logoutForm = document.getElementById("logoutForm");
 					logoutForm.action = "/SpringMVCExperiment/logout";
-					logoutForm.method = "post";
+					logoutForm.method = "get";
 					logoutForm.submit();
 				}
 			}

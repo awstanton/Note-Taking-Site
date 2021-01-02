@@ -12,7 +12,7 @@
 		<RollingFile name="RollingFileAppender" fileName="${logFilePath}\listsApp.log" filePattern="${logFilePath}\listsApp-%i.log">
 			<PatternLayout pattern="%-5level %logger{36} -- %msg%n%throwable"/>
 			<Policies>
-				<SizeBasedTriggeringPolicy size="50 MB" />
+				<SizeBasedTriggeringPolicy size="10 MB" />
 			</Policies>
 			<DefaultRolloverStrategy max="10" />
 		</RollingFile>

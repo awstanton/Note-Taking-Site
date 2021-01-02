@@ -55,12 +55,22 @@
 		<property name="maxTotal" value="${jdbc.maxTotal}"/>
 	</bean>
 	
+	<bean id="experimentValidator" class="com.springexperiment.validator.ExperimentValidator" />
+	
+	<bean id="experimentAuthenticationProvider" class="com.springexperiment.security.ExperimentAuthenticationProvider">
+		<property name="passwordEncoder" ref="passwordEncoder"/>
+		<property name="experimentDao" ref="experimentDao"/>
+		<property name="experimentValidator" ref="experimentValidator"/>
+	</bean>
+	
+	
 	<context:property-placeholder location="classpath:jdbc-${env}.properties"/>
 	
 <!-- 	<bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint"> -->
 <!-- 		<constructor-arg name="loginFormUrl" value="/login"/> -->
 <!-- 	</bean> -->
 
+<!-- <bean id="experimentLogoutSuccessHandler" class="com.springexperiment.security.ExperimentLogoutSuccessHandler" /> -->
 
 	<sec:debug />
 	<sec:http pattern="/resources/**/*.ico" security="none" /><!-- is this required? -->
@@ -77,7 +87,7 @@
 			invalidate-session="true"
 			logout-url="/logout"
 			logout-success-url="/login?logout"
-			delete-cookies="JSESSIONID"/><!-- delete-cookies="JSESSIONID" --><!-- perhaps configure a LogoutSuccessHandler and/or LogoutHandler -->
+			delete-cookies="JSESSIONID"/><!-- success-handler-ref="experimentLogoutSuccessHandler" --><!-- perhaps configure a LogoutSuccessHandler and/or LogoutHandler -->
 		<!-- <sec:remember-me key="uniqueAndSecret" token-validity-seconds="86400"/> -->
 		<sec:session-management invalid-session-url="/login?invalid" session-fixation-protection="newSession">
 			<sec:concurrency-control
@@ -99,18 +109,10 @@
 		<sec:intercept-url pattern="/**" access="denyAll" requires-channel="https" />
 		<sec:access-denied-handler error-page="/denied" /> <!-- perhaps configure AuthenticationSuccessHandler and AuthenticationFailureHandler or AuthenticationEntryPoint -->
 	</sec:http>
-	<sec:authentication-manager>
-		<sec:authentication-provider>
-			<sec:password-encoder ref="passwordEncoder" />
-			<sec:jdbc-user-service data-source-ref="dataSource"
-								   users-by-username-query="SELECT username, password, enabled FROM users WHERE username = ?"
-								   authorities-by-username-query="SELECT username, authority FROM authorities WHERE username = ?" />
-<!-- 							   users-by-username-query="SELECT username, password, enabled FROM Users2 WHERE username = ?" -->
-<!-- 							   authorities-by-username-query="SELECT username, authority FROM Authorities2 WHERE username = ?" /> -->
-		</sec:authentication-provider>
-	</sec:authentication-manager>
-	
 
+	<sec:authentication-manager>
+		<sec:authentication-provider ref="experimentAuthenticationProvider"/>
+	</sec:authentication-manager>
 </beans>
 	<!-- daoAuthenticationProvider -->
 <!-- 	<bean id="sessionRegistry" -->
