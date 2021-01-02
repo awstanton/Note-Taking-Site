@@ -48,6 +48,7 @@ import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
@@ -95,7 +96,7 @@ public class ExperimentController {
 	
 	
 	@PostMapping("/logoutSave")
-	public String logout(@ModelAttribute("updateItems") @Validated UpdateItemList updateItems, BindingResult result, Principal principal, HttpSession session) {
+	public String logout(@ModelAttribute("updateItems") @Validated UpdateItemList updateItems, BindingResult result, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("log out saving");
 		
 		if (result.hasErrors()) {
@@ -117,13 +118,32 @@ public class ExperimentController {
 				break;
 			}
 		}
-		session.invalidate();
+//		session.invalidate();
+//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//      if (auth != null) {
+//          new SecurityContextLogoutHandler().logout(req, res, auth);
+//      }
+		
+		Cookie cookie = new Cookie("JSESSIONID", null);
+		cookie.setPath((request.getContextPath() == "") ? "/" : request.getContextPath() + "/");
+		cookie.setMaxAge(0);
+		cookie.setSecure(true);
+		response.addCookie(cookie);
+		
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			session.invalidate();
+		}
+		SecurityContextHolder.getContext().setAuthentication(null);
+		SecurityContextHolder.clearContext();
+		
+		
 		
 		return "redirect:/login?logout";
 	}
 	
 	@GetMapping("/logout")
-	public String logout(HttpServletRequest req, HttpServletResponse res, HttpSession session) {
+	public String logout(HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("logging out");
 		
 //		session.invalidate();
@@ -136,10 +156,24 @@ public class ExperimentController {
 //			res.addCookie(cookie);
 //		}
 		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	      if (auth != null) {
-	          new SecurityContextLogoutHandler().logout(req, res, auth);
-	      }
+//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//	      if (auth != null) {
+//	          new SecurityContextLogoutHandler().logout(req, res, auth);
+//	      }
+
+		Cookie cookie = new Cookie("JSESSIONID", null);
+		cookie.setPath((request.getContextPath() == "") ? "/" : request.getContextPath() + "/");
+		cookie.setMaxAge(0);
+		cookie.setSecure(true);
+		response.addCookie(cookie);
+		
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			session.invalidate();
+		}
+		SecurityContextHolder.getContext().setAuthentication(null);
+		SecurityContextHolder.clearContext();
+		
 		
 		return "redirect:/login?logout";
 	}

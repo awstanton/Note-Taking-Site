@@ -221,10 +221,10 @@ public class ExperimentDao {
 			jdbcTemplate.update(Queries.insertListItems.getQuery(), listid, itemid);
 			
 		}
-		if (item.getDescription() != "") {
+//		if (item.getDescription() != "") {
 //			System.out.println("updating description");
-			jdbcTemplate.update(Queries.updateItemDescriptionByIdAndUserId.getQuery(), item.getDescription(), itemid, userid);
-		}
+		jdbcTemplate.update(Queries.updateItemDescriptionByIdAndUserId.getQuery(), item.getDescription(), itemid, userid);
+//		}
 		if (!item.getAddedTags().isEmpty()) {
 //			System.out.println("adding tags to item");
 			for (String tagName : item.getAddedTags()) {

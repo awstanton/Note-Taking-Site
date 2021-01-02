@@ -41,7 +41,7 @@ public class UpdateItemListValidator implements Validator {
     			ui.setType("none");
     			System.out.println("old list not matching");
     		}
-    		else if (ui.getDescription() != "" && !Pattern.matches("[a-zA-Z0-9\\s\\!\\@\\^\\*\\?\\.\\,\\(\\)\\/\\-]{1,500}", ui.getDescription())) { // ui.getDescription().length() < 1 || ui.getDescription().length() > 500
+    		else if (ui.getDescription() != "" && !Pattern.matches("[a-zA-Z0-9\\s\\!\\@\\^\\*\\?\\.\\,\\(\\)\\/\\-]{0,500}", ui.getDescription())) { // ui.getDescription().length() < 1 || ui.getDescription().length() > 500
     			ui.setType("none");
     			System.out.println("description not matching");
     		}

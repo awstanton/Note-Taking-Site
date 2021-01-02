@@ -83,11 +83,13 @@
 			authentication-failure-url="/login?error"
 			username-parameter="username"
 			password-parameter="password"/> <!-- NOT SURE IF DELETE-COOKIES IS NEEDED HERE -->
-		<sec:logout
+		<!-- <sec:logout
 			invalidate-session="true"
 			logout-url="/logout"
 			logout-success-url="/login?logout"
-			delete-cookies="JSESSIONID"/><!-- success-handler-ref="experimentLogoutSuccessHandler" --><!-- perhaps configure a LogoutSuccessHandler and/or LogoutHandler -->
+			delete-cookies="JSESSIONID"/>-->
+			
+			<!-- success-handler-ref="experimentLogoutSuccessHandler" --><!-- perhaps configure a LogoutSuccessHandler and/or LogoutHandler -->
 		<!-- <sec:remember-me key="uniqueAndSecret" token-validity-seconds="86400"/> -->
 		<sec:session-management invalid-session-url="/login?invalid" session-fixation-protection="newSession">
 			<sec:concurrency-control
