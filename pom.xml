@@ -14,7 +14,7 @@
   	<log4j2-version>2.13.2</log4j2-version>
   	<mysql-connector-version>8.0.20</mysql-connector-version>
   	<commons-dbcp2-version>2.7.0</commons-dbcp2-version>
-  	<spring-security-version>5.3.2.RELEASE</spring-security-version>
+  	<spring-security-version>5.3.9.RELEASE</spring-security-version>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
