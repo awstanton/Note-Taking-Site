@@ -9,7 +9,7 @@
   <packaging>war</packaging>
   
   <properties>
-  	<org.springframework-version>5.2.6.RELEASE</org.springframework-version>
+  	<org.springframework-version>5.3.18</org.springframework-version>
   	<jstl-version>1.2</jstl-version>
   	<log4j2-version>2.13.2</log4j2-version>
   	<mysql-connector-version>8.0.20</mysql-connector-version>
